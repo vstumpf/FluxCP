@@ -62,10 +62,17 @@ if (count($_POST)) {
 		
 		$account         = $sth->fetch();
 		$useMD5          = $session->loginServer->config->getUseMD5();
-		$currentPassword = $useMD5 ? Flux::hashPassword($currentPassword) : $currentPassword;
-		$newPassword     = $useMD5 ? Flux::hashPassword($newPassword) : $newPassword;
+		$useBcrypt       = !$session->loginServer->config->getDoNotUseBcrypt();
+
+		if ($useBcrypt) {
+			$newPassword = Flux::hashPassword($newPassword);
+		} else if ($useMD5) {
+			$currentPassword = Flux::hashPassword($currentPassword);
+			$newPassword = Flux::hashPassword($newPassword);
+		}
 		
-		if ($currentPassword != $account->currentPassword) {
+		if (($useBcrypt && !password_verify($currentPassword, $account->currentPassword))
+		 	|| ($currentPassword != $account->currentPassword)) {
 			$errorMessage = Flux::message('OldPasswordInvalid');
 		}
 		else {
@@ -79,7 +86,7 @@ if (count($_POST)) {
 				$sql .= "(account_id, old_password, new_password, change_ip, change_date) ";
 				$sql .= "VALUES (?, ?, ?, ?, NOW())";
 				$sth  = $server->connection->getStatement($sql);
-				$sth->execute(array($session->account->account_id, $currentPassword, $newPassword, $_SERVER['REMOTE_ADDR']));
+				$sth->execute(array($session->account->account_id, $account->currentPassword, $newPassword, $_SERVER['REMOTE_ADDR']));
 				
 				$session->setMessageData(Flux::message('PasswordHasBeenChanged'));
 				$session->logout();

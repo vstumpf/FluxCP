@@ -12,9 +12,10 @@ if (Flux::config('AutoRemoveTempBans')) {
 }
 
 $useMD5         = $server->loginServer->config->get('UseMD5');
+$useBcrypt      = !$server->loginServer->config->get('DoNotUseBcrypt');
 $searchMD5      = Flux::config('AllowMD5PasswordSearch') && Flux::config('ReallyAllowMD5PasswordSearch') && $auth->allowedToSearchMD5Passwords;
-$searchPassword = (($useMD5 && $searchMD5) || !$useMD5) && $auth->allowedToSeeAccountPassword;
-$showPassword   = !$useMD5 && $auth->allowedToSeeAccountPassword;
+$searchPassword = (($useMD5 && $searchMD5) || !$useMD5) && !$useBcrypt && $auth->allowedToSeeAccountPassword;
+$showPassword   = !$useBcrypt && !$useMD5 && $auth->allowedToSeeAccountPassword;
 $bind           = array();
 $creditsTable   = Flux::config('FluxTables.CreditsTable');
 $creditColumns  = 'credits.balance, credits.last_donation_date, credits.last_donation_amount';

@@ -614,6 +614,16 @@ class Flux {
 		// Default hashing schema is MD5.
 		return md5($password);
 	}
+	/**
+	 * Hashes a password with bcrypt for use in comparison with the login.user_pass column.
+	 *
+	 * @param string $password Plain text password.
+	 * @return string Returns hashed password.
+	 * @access public
+	 */
+	public static function bcryptHashPassword($password) {
+		return password_hash($password, 'PASSWORD_BCRYPT');
+	}
 
 	/**
 	 * Get the job class name from a job ID.

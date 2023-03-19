@@ -49,7 +49,9 @@ for ($i = 0; $i < $passLength; ++$i) {
 }
 
 $unhashedNewPassword = $newPassword;
-if ($loginAthenaGroup->loginServer->config->getUseMD5()) {
+if (!$loginAthenaGroup->loginServer->config->getDoNotUseBcrypt()) {
+	$newPassword = Flux::bcryptHashPassword($newPassword);
+} else if ($loginAthenaGroup->loginServer->config->getUseMD5()) {
 	$newPassword = Flux::hashPassword($newPassword);
 }
 

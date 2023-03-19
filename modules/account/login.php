@@ -19,7 +19,9 @@ if (count($_POST)) {
 		$session->login($serverGroupName, $username, $password, $code);
 		$returnURL = $params->get('return_url');
 		
-		if ($session->loginAthenaGroup->loginServer->config->getUseMD5()) {
+		if (!$session->loginAthenaGroup->loginServer->config->getDoNotUseBcrypt()) {
+			$password = Flux::bcryptHashPassword($password);
+		} else if ($session->loginAthenaGroup->loginServer->config->getUseMD5()) {
 			$password = Flux::hashPassword($password);
 		}
 		
@@ -56,7 +58,9 @@ if (count($_POST)) {
 			if ($row) {
 				$accountID = $row->account_id;
 				
-				if ($loginAthenaGroup->loginServer->config->getUseMD5()) {
+				if (!$loginAthenaGroup->loginServer->config->getDoNotUseBcrypt()) {
+					$password = Flux::bcryptHashPassword($password);
+				} else if ($loginAthenaGroup->loginServer->config->getUseMD5()) {
 					$password = Flux::hashPassword($password);
 				}
 
